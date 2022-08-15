@@ -1,6 +1,6 @@
 {
   "name": "simple-cron-scheduler",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Setup functions to be asynchronously executed on a cron style schedule",
   "repository": {
     "type": "git",
@@ -11,6 +11,7 @@
     "src/*"
   ],
   "main": "./dist/cron.js",
+  "types": "./dist/cron.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",

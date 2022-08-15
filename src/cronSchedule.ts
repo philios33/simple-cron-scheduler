@@ -1,4 +1,11 @@
-import { CronSchedule } from "./cron";
+
+export type CronSchedule = {
+    minutes: Array<number>
+    hours: Array<number>
+    days: Array<number>
+    months: Array<number>
+    dows: Array<number>
+}
 
 export function parseCronSchedule(schedule: string) : CronSchedule {
     const cronPieces = schedule.split(" ");

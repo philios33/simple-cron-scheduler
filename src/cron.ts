@@ -20,15 +20,7 @@
  * Once and only once.  Ticks are designed to guarantee eventual execution and never be missed even on a slowly executing or throttled node process.
  */
 
-import { parseCronSchedule } from "./cronSchedule"
-
-export type CronSchedule = {
-    minutes: Array<number>
-    hours: Array<number>
-    days: Array<number>
-    months: Array<number>
-    dows: Array<number>
-}
+import { CronSchedule, parseCronSchedule } from "./cronSchedule"
 
 export type CronTick = {
     minute: number
