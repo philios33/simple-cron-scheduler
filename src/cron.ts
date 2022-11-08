@@ -55,7 +55,7 @@ export class Cron {
                 hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit',
-                hourCycle: 'h23',
+                // hourCycle: 'h23', // This is not compiling with target=es6
                 timeZone: timezone
             });
         }
@@ -71,9 +71,12 @@ export class Cron {
         // We can calculate when the first change will be and start a minute interval from then.
         const now = new Date();
         const currentSecond = now.getSeconds(); // 0 - 59
-        if (currentSecond < 5) {
+        if (currentSecond < 2) {
+            // Close enough to the tick that just happened
+            // console.log("Close enough: " + currentSecond);
             this.startFirstExecution();
         } else {
+            // console.log("Waiting: " + (60 - currentSecond));
             setTimeout(() => {
                 this.startFirstExecution();
             }, (60 - currentSecond) * 1000);
@@ -87,6 +90,9 @@ export class Cron {
         this.lastDateExecuted = new Date();
         this.lastDateExecuted.setSeconds(0);
         this.lastDateExecuted.setMilliseconds(0);
+        // We go back to the start of the previous minute so that we trigger the next minute now
+        this.lastDateExecuted.setMinutes(this.lastDateExecuted.getMinutes() - 1);
+        // console.log("First execution starting, setting lastDateExecuted to", this.lastDateExecuted);
         const interval = setInterval(() => {
             if (this.isCancelled) {
                 clearInterval(interval);
@@ -100,9 +106,18 @@ export class Cron {
     private runCronStepsToNow() {
         // Send all the minute steps since the previous launch to the system
         // We can do this by increasing a date with 60 seconds intervals
-        const now = new Date();
+        const now = new Date(); 
+        // This should always execute at the start of a new minute
+        // but we still need to make sure we dont run the next tick prematurely
         while (this.lastDateExecuted <= now) {
-            this.lastDateExecuted.setMinutes(this.lastDateExecuted.getMinutes() + 1); // Add 1 minute
+            const nextTickTime = new Date(this.lastDateExecuted);
+            nextTickTime.setMinutes(nextTickTime.getMinutes() + 1); // Add 1 minute
+            if (nextTickTime > now) {
+                // Not reached this tick yet
+                break;
+            }
+
+            this.lastDateExecuted = nextTickTime;
             // It is not possible for a minute to get skipped or duplicated
             
             let localTime = this.lastDateExecuted;
@@ -122,6 +137,7 @@ export class Cron {
     }
 
     private executeTick(tick: CronTick, instance: Date) {
+        // console.log("Executing tick", tick, instance);
         // Only execute the tick when the schedule says so
         if (this.schedule.minutes.indexOf(tick.minute) === -1) {
             return;
